@@ -1,22 +1,24 @@
 import java.io.IOException;
-
-import javax.xml.parsers.*;
-
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.sql.Statement;
+import java.util.Properties;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.Properties;
-
 public class xmlparse {
-	
+
 	private final static String userName = "root";
 	private final static String password = "";
 	private final static String serverName = "localhost";
@@ -25,41 +27,33 @@ public class xmlparse {
 	private final static String hmeDBName = "healthmessagesexchange2";
 	private final static String hospitalDBName = "hospitalrecords";
 	private final static String hmeTableName = "messages";
-	
-	
-	public static void main() throws ClassNotFoundException, SQLException {
-		try {
 
-			Connection con = null;
-			Statement st = null;
-			ResultSet rs = null;
+	public static void main(String[] args) throws ClassNotFoundException,
+			SQLException {
+		System.out.println("Running main...");
+		Connection con = null;
+		Statement st = null;
+		ResultSet rs = null;
 
-//			String url = "jdbc:mysql://localhost:3306/dbname";
-//			String user = "";
-//			String password = "";
+		// String url = "jdbc:mysql://localhost:3306/dbname";
+		// String user = "";
+		// String password = "";
 
-			Class.forName("com.mysql.jdbc.Driver");
-//			con = DriverManager.getConnection(url, user, password);
-			
-			con = getConnection(portNumHme, hmeDBName);
-			st = con.createStatement();
-			rs = st.executeQuery("SELECT * FROM healthmessagesexchange.messagequeue ORDER BY control_id DESC LIMIT 1;");
+		Class.forName("com.mysql.jdbc.Driver");
+		// con = DriverManager.getConnection(url, user, password);
 
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		con = getConnection(portNumHme, hmeDBName);
+		st = con.createStatement();
+//		rs = st.executeQuery("SELECT * FROM healthmessagesexchange2.messages ORDER BY patientId DESC LIMIT 1;");
+		rs = st.executeQuery("SELECT * FROM healthmessagesexchange2.messages ORDER BY patientId;");
 
-			DocumentBuilder db = dbf.newDocumentBuilder();
+		parseHmeQuery(rs);
 
-			Document dom = db.parse(rs.getString(0));
-
-		} catch (ParserConfigurationException pce) {
-			pce.printStackTrace();
-		} catch (SAXException se) {
-			se.printStackTrace();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		// DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		// DocumentBuilder db = dbf.newDocumentBuilder();
+		// Document dom = db.parse(rs.getString(0));
 	}
-	
+
 	/**
 	 * Get database connection
 	 * 
@@ -73,8 +67,8 @@ public class xmlparse {
 		connectionProps.put("user", userName);
 		connectionProps.put("password", password);
 
-		conn = DriverManager.getConnection("jdbc:mysql://" + serverName
-				+ ":" + portNum + "/" + dbName, connectionProps);
+		conn = DriverManager.getConnection("jdbc:mysql://" + serverName + ":"
+				+ portNum + "/" + dbName, connectionProps);
 
 		return conn;
 	}
@@ -141,7 +135,7 @@ public class xmlparse {
 			e.printStackTrace();
 			return;
 		}
-		
+
 		// read data from HME and identify each field of message
 		try {
 			String hmeDataQuery = "SELECT * FROM " + hmeTableName + ";";
@@ -149,15 +143,13 @@ public class xmlparse {
 			System.out.println("Asked for HME data. ");
 			System.out.println("===================================\nHME Data");
 			this.parseHmeQuery(rs);
-			
+
 			System.out.println("===================================");
 			rs.close();
-		
+
 		} catch (SQLException e) {
 			// TODO
 		}
-		
-		
 
 		// After identifying and
 		// separating you need to store the data into the schema you created.
@@ -167,80 +159,154 @@ public class xmlparse {
 		// xmlCreationDatetime
 		// needs to be updated with the current date and time
 
-
 	}
-	
-	public void parseHmeQuery(ResultSet rs) throws SQLException {
+
+	public static void parseHmeQuery(ResultSet rs) throws SQLException {
 		while (rs.next()) {
 			// Retrieve by column name
-			int isbn = rs.getInt("isbn");
-			String title = rs.getString("title");
-			String author = rs.getString("author");
-			int qty_in_stock = rs.getInt("qty_in_stock");
-			double price = rs.getDouble("price");
-			int year_published = rs.getInt("year_published");
+			// int isbn = rs.getInt("isbn");
+			// String title = rs.getString("title");
+			// String author = rs.getString("author");
+			// int qty_in_stock = rs.getInt("qty_in_stock");
+			// double price = rs.getDouble("price");
+			// int year_published = rs.getInt("year_published");
 
-//			MsgId` varchar(100) DEFAULT NULL,
-//			Last_Accessed` varchar(100) DEFAULT NULL,
-//			patientId` varchar(100) DEFAULT NULL,
-//			GivenName` varchar(100) DEFAULT NULL,
-//			FamilyName` varchar(100) DEFAULT NULL,
-//			BirthTime` varchar(100) DEFAULT NULL,
-//			providerId` varchar(100) DEFAULT NULL,
-//			GuardianNo` varchar(100) DEFAULT NULL,
-//			Relationship` varchar(100) DEFAULT NULL,
-//			FirstName` varchar(100) DEFAULT NULL,
-//			LastName` varchar(100) DEFAULT NULL,
-//			phone` varchar(100) DEFAULT NULL,
-//			address` varchar(100) DEFAULT NULL,
-//			  `city` varchar(100) DEFAULT NULL,
-//			  `state` varchar(100) DEFAULT NULL,
-//			  `zip` varchar(100) DEFAULT NULL,
-//			  `AuthorId` varchar(100) DEFAULT NULL,
-//			  `AuthorTitle` varchar(100) DEFAULT NULL,
-//			  `AuthorFirstName` varchar(100) DEFAULT NULL,
-//			  `AuthorLastName` varchar(100) DEFAULT NULL,
-//			  `ParticipatingRole` varchar(100) DEFAULT NULL,
-//			  `PayerId` varchar(100) DEFAULT NULL,
-//			  `Name` varchar(100) DEFAULT NULL,
-//			  `PolicyHolder` varchar(100) DEFAULT NULL,
-//			  `PolicyType` varchar(100) DEFAULT NULL,
-//			  `Purpose` varchar(100) DEFAULT NULL,
-//			  `RelativeId` varchar(100) DEFAULT NULL,
-//			  `Relation` varchar(100) DEFAULT NULL,
-//			  `age` varchar(100) DEFAULT NULL,
-//			  `Diagnosis` varchar(100) DEFAULT NULL,
-//			  `Id` varchar(100) DEFAULT NULL,
-//			  `Substance` varchar(100) DEFAULT NULL,
-//			  `Reaction` varchar(100) DEFAULT NULL,
-//			  `Status` varchar(100) DEFAULT NULL,
-//			  `LabTestResultId` varchar(100) DEFAULT NULL,
-//			  `PatientVisitId` varchar(100) DEFAULT NULL,
-//			  `LabTestPerformedDate` varchar(100) DEFAULT NULL,
-//			  `LabTestType` varchar(100) DEFAULT NULL,
-//			  `TestResultValue` varchar(100) DEFAULT NULL,
-//			  `ReferenceRangeHigh` varchar(100) DEFAULT NULL,
-//			  `ReferenceRangeLow` varchar(100) DEFAULT NULL,
-//			  `PlanId` varchar(100) DEFAULT NULL,
-//			  `Activity` varchar(100) DEFAULT NULL,
-//			  `ScheduledDate` varchar(100) DEFAULT NULL
-			
+			String MsgId = rs.getString("MsgId");
+			String Last_Accessed = rs.getString("Last_Accessed");
+			String patientId = rs.getString("patientId");
+			String GivenName = rs.getString("GivenName");
+			String FamilyName = rs.getString("FamilyName");
+			String BirthTime = rs.getString("BirthTime");
+			String providerId = rs.getString("providerId");
+			String GuardianNo = rs.getString("GuardianNo");
+			String Relationship = rs.getString("Relationship");
+			String FirstName = rs.getString("FirstName");
+			String LastName = rs.getString("LastName");
+			String phone = rs.getString("phone");
+			String address = rs.getString("address");
+			String city = rs.getString("city");
+			String state = rs.getString("state");
+			String zip = rs.getString("zip");
+			String AuthorId = rs.getString("AuthorId");
+			String AuthorTitle = rs.getString("AuthorTitle");
+			String AuthorFirstName = rs.getString("AuthorFirstName");
+			String AuthorLastName = rs.getString("AuthorLastName");
+			String ParticipatingRole = rs.getString("ParticipatingRole");
+			String PayerId = rs.getString("PayerId");
+			String Name = rs.getString("Name");
+			String PolicyHolder = rs.getString("PolicyHolder");
+			String PolicyType = rs.getString("PolicyType");
+			String Purpose = rs.getString("Purpose");
+			String RelativeId = rs.getString("RelativeId");
+			String Relation = rs.getString("Relation");
+			String age = rs.getString("age");
+			String Diagnosis = rs.getString("Diagnosis");
+			String Id = rs.getString("Id");
+			String Substance = rs.getString("Substance");
+			String Reaction = rs.getString("Reaction");
+			String Status = rs.getString("Status");
+			String LabTestResultId = rs.getString("LabTestResultId");
+			String PatientVisitId = rs.getString("PatientVisitId");
+			String LabTestPerformedDate = rs.getString("LabTestPerformedDate");
+			String LabTestType = rs.getString("LabTestType");
+			String TestResultValue = rs.getString("TestResultValue");
+			String ReferenceRangeHigh = rs.getString("ReferenceRangeHigh");
+			String ReferenceRangeLow = rs.getString("ReferenceRangeLow");
+			String PlanId = rs.getString("PlanId");
+			String Activity = rs.getString("Activity");
+			String ScheduledDate = rs.getString("ScheduledDate");
+
+			System.out.println("MsgId: " + MsgId);
+			System.out.println("Last_Accessed: " + Last_Accessed);
+			System.out.println("patientId: " + patientId);
+			System.out.println("GivenName: " + GivenName);
+			System.out.println("FamilyName: " + FamilyName);
+			System.out.println("BirthTime: " + BirthTime);
+			System.out.println("providerId: " + providerId);
+			System.out.println("GuardianNo: " + GuardianNo);
+			System.out.println("Relationship: " + Relationship);
+			System.out.println("FirstName: " + FirstName);
+			System.out.println("LastName: " + LastName);
+			System.out.println("phone: " + phone);
+			System.out.println("address: " + address);
+			System.out.println("city: " + city);
+			System.out.println("state: " + state);
+			System.out.println("zip: " + zip);
+			System.out.println("AuthorId: " + AuthorId);
+			System.out.println("AuthorTitle: " + AuthorTitle);
+			System.out.println("AuthorFirstName: " + AuthorFirstName);
+			System.out.println("AuthorLastName: " + AuthorLastName);
+			System.out.println("ParticipatingRole: " + ParticipatingRole);
+			System.out.println("PayerId: " + PayerId);
+			System.out.println("Name: " + Name);
+			System.out.println("PolicyHolder: " + PolicyHolder);
+			System.out.println("PolicyType: " + PolicyType);
+			System.out.println("Purpose: " + Purpose);
+			System.out.println("RelativeId: " + RelativeId);
+			System.out.println("Relation: " + Relation);
+			System.out.println("age: " + age);
+			System.out.println("Diagnosis: " + Diagnosis);
+			System.out.println("Id: " + Id);
+			System.out.println("Substance: " + Substance);
+			System.out.println("Reaction: " + Reaction);
+			System.out.println("Status: " + Status);
+			System.out.println("LabTestResultId: " + LabTestResultId);
+			System.out.println("PatientVisitId: " + PatientVisitId);
+			System.out.println("LabTestPerformedDate: " + LabTestPerformedDate);
+			System.out.println("LabTestType: " + LabTestType);
+			System.out.println("TestResultValue: " + TestResultValue);
+			System.out.println("ReferenceRangeHigh: " + ReferenceRangeHigh);
+			System.out.println("ReferenceRangeLow: " + ReferenceRangeLow);
+			System.out.println("PlanId: " + PlanId);
+			System.out.println("Activity: " + Activity);
+			System.out.println("ScheduledDate: " + ScheduledDate);
+
+			// MsgId` varchar(100) DEFAULT NULL,
+			// Last_Accessed` varchar(100) DEFAULT NULL,
+			// patientId` varchar(100) DEFAULT NULL,
+			// GivenName` varchar(100) DEFAULT NULL,
+			// FamilyName` varchar(100) DEFAULT NULL,
+			// BirthTime` varchar(100) DEFAULT NULL,
+			// providerId` varchar(100) DEFAULT NULL,
+			// GuardianNo` varchar(100) DEFAULT NULL,
+			// Relationship` varchar(100) DEFAULT NULL,
+			// FirstName` varchar(100) DEFAULT NULL,
+			// LastName` varchar(100) DEFAULT NULL,
+			// phone` varchar(100) DEFAULT NULL,
+			// address` varchar(100) DEFAULT NULL,
+			// `city` varchar(100) DEFAULT NULL,
+			// `state` varchar(100) DEFAULT NULL,
+			// `zip` varchar(100) DEFAULT NULL,
+			// `AuthorId` varchar(100) DEFAULT NULL,
+			// `AuthorTitle` varchar(100) DEFAULT NULL,
+			// `AuthorFirstName` varchar(100) DEFAULT NULL,
+			// `AuthorLastName` varchar(100) DEFAULT NULL,
+			// `ParticipatingRole` varchar(100) DEFAULT NULL,
+			// `PayerId` varchar(100) DEFAULT NULL,
+			// `Name` varchar(100) DEFAULT NULL,
+			// `PolicyHolder` varchar(100) DEFAULT NULL,
+			// `PolicyType` varchar(100) DEFAULT NULL,
+			// `Purpose` varchar(100) DEFAULT NULL,
+			// `RelativeId` varchar(100) DEFAULT NULL,
+			// `Relation` varchar(100) DEFAULT NULL,
+			// `age` varchar(100) DEFAULT NULL,
+			// `Diagnosis` varchar(100) DEFAULT NULL,
+			// `Id` varchar(100) DEFAULT NULL,
+			// `Substance` varchar(100) DEFAULT NULL,
+			// `Reaction` varchar(100) DEFAULT NULL,
+			// `Status` varchar(100) DEFAULT NULL,
+			// `LabTestResultId` varchar(100) DEFAULT NULL,
+			// `PatientVisitId` varchar(100) DEFAULT NULL,
+			// `LabTestPerformedDate` varchar(100) DEFAULT NULL,
+			// `LabTestType` varchar(100) DEFAULT NULL,
+			// `TestResultValue` varchar(100) DEFAULT NULL,
+			// `ReferenceRangeHigh` varchar(100) DEFAULT NULL,
+			// `ReferenceRangeLow` varchar(100) DEFAULT NULL,
+			// `PlanId` varchar(100) DEFAULT NULL,
+			// `Activity` varchar(100) DEFAULT NULL,
+			// `ScheduledDate` varchar(100) DEFAULT NULL
+
 		}
 	}
-	
-	
-	
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
