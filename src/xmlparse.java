@@ -1,35 +1,79 @@
+import java.io.IOException;
+
+import javax.xml.parsers.*;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Properties;
 
-public class HMEUpdate {
+public class xmlparse {
+	
+	private final static String userName = "root";
+	private final static String password = "";
+	private final static String serverName = "localhost";
+	private final static int portNumHme = 3306;
+	private final static int portNumHospital = 3307;
+	private final static String hmeDBName = "healthmessagesexchange2";
+	private final static String hospitalDBName = "hospitalrecords";
+	private final static String hmeTableName = "messages";
+	
+	
+	public static void main() throws ClassNotFoundException, SQLException {
+		try {
 
-	private final String userName = "root";
-	private final String password = "";
-	private final String serverName = "localhost";
-	private final int portNumHme = 3306;
-	private final int portNumHospital = 3307;
-	private final String hmeDBName = "healthmessagesexchange2";
-	private final String hospitalDBName = "hospitalrecords";
-	private final String hmeTableName = "messages";
+			Connection con = null;
+			Statement st = null;
+			ResultSet rs = null;
 
+//			String url = "jdbc:mysql://localhost:3306/dbname";
+//			String user = "";
+//			String password = "";
+
+			Class.forName("com.mysql.jdbc.Driver");
+//			con = DriverManager.getConnection(url, user, password);
+			
+			con = getConnection(portNumHme, hmeDBName);
+			st = con.createStatement();
+			rs = st.executeQuery("SELECT * FROM healthmessagesexchange.messagequeue ORDER BY control_id DESC LIMIT 1;");
+
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+			DocumentBuilder db = dbf.newDocumentBuilder();
+
+			Document dom = db.parse(rs.getString(0));
+
+		} catch (ParserConfigurationException pce) {
+			pce.printStackTrace();
+		} catch (SAXException se) {
+			se.printStackTrace();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Get database connection
 	 * 
 	 * @return Connection
 	 * @throws SQLException
 	 */
-	public Connection getConnection(int portNum, String dbName)
+	public static Connection getConnection(int portNum, String dbName)
 			throws SQLException {
 		Connection conn = null;
 		Properties connectionProps = new Properties();
-		connectionProps.put("user", this.userName);
-		connectionProps.put("password", this.password);
+		connectionProps.put("user", userName);
+		connectionProps.put("password", password);
 
-		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName
+		conn = DriverManager.getConnection("jdbc:mysql://" + serverName
 				+ ":" + portNum + "/" + dbName, connectionProps);
 
 		return conn;
@@ -181,9 +225,22 @@ public class HMEUpdate {
 //			  `Activity` varchar(100) DEFAULT NULL,
 //			  `ScheduledDate` varchar(100) DEFAULT NULL
 			
-			
 		}
 	}
 	
-
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
