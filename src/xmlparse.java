@@ -6,6 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -23,13 +28,13 @@ public class xmlparse {
 	private final static String password = "";
 	private final static String serverName = "localhost";
 	private final static int portNumHme = 3306;
-	private final static int portNumHospital = 3307;
+	private final static int portNumHospital = 12000;
 	private final static String hmeDBName = "healthmessagesexchange2";
 	private final static String hospitalDBName = "hospitalrecords";
 	private final static String hmeTableName = "messages";
 
 	public static void main(String[] args) throws ClassNotFoundException,
-			SQLException {
+			SQLException, ParseException {
 		System.out.println("Running main...");
 		Connection con = null;
 		Statement st = null;
@@ -44,7 +49,6 @@ public class xmlparse {
 
 		con = getConnection(portNumHme, hmeDBName);
 		st = con.createStatement();
-//		rs = st.executeQuery("SELECT * FROM healthmessagesexchange2.messages ORDER BY patientId DESC LIMIT 1;");
 		rs = st.executeQuery("SELECT * FROM healthmessagesexchange2.messages ORDER BY patientId;");
 
 		parseHmeQuery(rs);
@@ -76,7 +80,7 @@ public class xmlparse {
 	/**
 	 * Run SQL command - executes update, doesn't return resultset
 	 */
-	public boolean executeUpdate(Connection conn, String command)
+	public static boolean executeUpdate(Connection conn, String command)
 			throws SQLException {
 		Statement stmt = null;
 		try {
@@ -117,8 +121,9 @@ public class xmlparse {
 
 	/**
 	 * Connect to databases and update
+	 * @throws ParseException 
 	 */
-	public void run() {
+	public void run() throws ParseException {
 
 		/*
 		 * Read the data from the healthmessagesexchange table and identify each
@@ -161,7 +166,25 @@ public class xmlparse {
 
 	}
 
-	public static void parseHmeQuery(ResultSet rs) throws SQLException {
+	public static void addPatientToDB(Patient p) throws SQLException {
+		
+		Connection conn = getConnection(portNumHospital, hospitalDBName);
+		String update = "INSERT INTO `Patient` VALUES (" + 
+				p.getPatientid() + "," +
+				p.getPatientrole() + "," +
+				p.getGivenname() + "," +
+				p.getFamilyname() + "," +
+				p.getSuffix() + "," +
+				p.getGender() + "," +
+				p.getBirthtime() + "," +
+				p.getProviderId() + "," +
+				p.getXmlCreationdate() + ");";
+		
+		executeUpdate(conn, update);
+		
+	}
+	
+	public static void parseHmeQuery(ResultSet rs) throws SQLException, ParseException {
 		while (rs.next()) {
 			// Retrieve by column name
 			// int isbn = rs.getInt("isbn");
@@ -261,6 +284,24 @@ public class xmlparse {
 			System.out.println("Activity: " + Activity);
 			System.out.println("ScheduledDate: " + ScheduledDate);
 
+			String suffix = "Mr";
+			String gender = "M";
+			String xmlDate = "January 2, 2010";
+			DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+			Date xmlCreationDate = format.parse(xmlDate);
+			System.out.println("date: " + xmlCreationDate);
+			BirthTime = "January 2, 2010";
+			Date birthdate = format.parse(xmlDate);
+			System.out.println("date: " + xmlCreationDate);
+			
+			/**
+			 * String ID, String firstName, String givenname,
+			String familyname, String suffix, String gender, Date birthtime,
+			String providerid, Date xmlCreationDate
+			 */
+			Patient patient = new Patient(patientId, FirstName, GivenName, FamilyName, suffix, gender, birthdate, providerId, xmlCreationDate);
+			
+			addPatientToDB(patient);
 
 		}
 	}
