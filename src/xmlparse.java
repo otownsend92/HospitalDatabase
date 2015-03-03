@@ -28,15 +28,17 @@ public class xmlparse {
 	private final static String password = "";
 	private final static String serverName = "localhost";
 	private final static int portNumHme = 3306;
-	private final static int portNumHospital = 12000;
+	private final static int portNumHospital = 3306;
 	private final static String hmeDBName = "healthmessagesexchange2";
 	private final static String hospitalDBName = "hospitalrecords";
 	private final static String hmeTableName = "messages";
+	static Connection hmeCon = null;
+	static Connection hisCon = null;
 
 	public static void main(String[] args) throws ClassNotFoundException,
 			SQLException, ParseException {
 		System.out.println("Running main...");
-		Connection con = null;
+		
 		Statement st = null;
 		ResultSet rs = null;
 
@@ -47,9 +49,15 @@ public class xmlparse {
 		Class.forName("com.mysql.jdbc.Driver");
 		// con = DriverManager.getConnection(url, user, password);
 
-		con = getConnection(portNumHme, hmeDBName);
-		st = con.createStatement();
+		hisCon = getConnection(portNumHospital, hospitalDBName);
+	    System.out.println("hisCon=" + hisCon);
+		hmeCon = getConnection(portNumHme, hmeDBName);
+		System.out.println("hmeCon=" + hmeCon);
+		
+		
+		st = hmeCon.createStatement();
 		rs = st.executeQuery("SELECT * FROM healthmessagesexchange2.messages ORDER BY patientId;");
+//		con.close();
 
 		parseHmeQuery(rs);
 
@@ -73,6 +81,9 @@ public class xmlparse {
 
 		conn = DriverManager.getConnection("jdbc:mysql://" + serverName + ":"
 				+ portNum + "/" + dbName, connectionProps);
+		
+//		String connectionString = "jdbc:mysql://localhost/" + dbName + "?user=" + 
+//		dbUserName + "&password=" + dbPassword + "&useUnicode=true&characterEncoding=UTF-8";
 
 		return conn;
 	}
@@ -168,19 +179,29 @@ public class xmlparse {
 
 	public static void addPatientToDB(Patient p) throws SQLException {
 		
-		Connection conn = getConnection(portNumHospital, hospitalDBName);
-		String update = "INSERT INTO `Patient` VALUES (" + 
-				p.getPatientid() + "," +
-				p.getPatientrole() + "," +
-				p.getGivenname() + "," +
-				p.getFamilyname() + "," +
-				p.getSuffix() + "," +
-				p.getGender() + "," +
-				p.getBirthtime() + "," +
-				p.getProviderId() + "," +
-				p.getXmlCreationdate() + ");";
+//		Connection conn = getConnection(portNumHospital, hospitalDBName);
+		String update = "INSERT INTO `Patient` ("
+				+ "`PatientID`," 
+				+ "`GuardianNo`,"
+				+ "`GivenName`,"
+				+ "`FamilyName`,"
+				+ "`Suffix`,"
+				+ "`Gender`,"
+				+ "`Birthtime`,"
+				+ "`ProviderID`,"
+				+ "`xmlHealthCreationDateTime`) VALUES ( " + 
+				Integer.parseInt(p.getPatientid()) + "," +
+				Integer.parseInt(p.getPatientrole()) + ",\"" +
+				p.getGivenname() + "\",\"" +
+				p.getFamilyname() + "\",\"" +
+				p.getSuffix() + "\",\"" +
+				p.getGender() + "\",\"" +
+				p.getBirthtime() + "\",\"" +
+				p.getProviderId() + "\",\"" +
+				p.getXmlCreationdate() + "\");";
+		System.out.println("update string: " + update);
 		
-		executeUpdate(conn, update);
+		executeUpdate(hisCon, update);
 		
 	}
 	
@@ -299,7 +320,9 @@ public class xmlparse {
 			String familyname, String suffix, String gender, Date birthtime,
 			String providerid, Date xmlCreationDate
 			 */
-			Patient patient = new Patient(patientId, FirstName, GivenName, FamilyName, suffix, gender, birthdate, providerId, xmlCreationDate);
+			String birthdate1 = "121212";
+			String xmlCreationDate1 = "131313";
+			Patient patient = new Patient(patientId, GuardianNo, FirstName, GivenName, FamilyName, suffix, gender, birthdate1, "11", xmlCreationDate1);
 			
 			addPatientToDB(patient);
 

@@ -7,13 +7,13 @@ public class Patient {
 	private String familyname;
 	private String suffix;
 	private String gender;
-	private Date birthtime;
+	private String birthtime;
 	private String providerId;
-	private Date xmlCreationdate;
+	private String xmlCreationdate;
 
-	public Patient(String ID, String firstName, String givenname,
-			String familyname, String suffix, String gender, Date birthtime,
-			String providerid, Date xmlCreationDate) {
+	public Patient(String ID, String patientrole, String firstName, String givenname,
+			String familyname, String suffix, String gender, String birthtime,
+			String providerid, String xmlCreationDate) {
 		this.setPatientid(ID);
 		this.setPatientrole(patientrole);
 		this.setGivenname(givenname);
@@ -73,11 +73,11 @@ public class Patient {
 		this.gender = gender;
 	}
 
-	public Date getBirthtime() {
+	public String getBirthtime() {
 		return birthtime;
 	}
 
-	public void setBirthtime(Date birthtime) {
+	public void setBirthtime(String birthtime) {
 		this.birthtime = birthtime;
 	}
 
@@ -89,11 +89,11 @@ public class Patient {
 		this.providerId = providerId;
 	}
 
-	public Date getXmlCreationdate() {
+	public String getXmlCreationdate() {
 		return xmlCreationdate;
 	}
 
-	public void setXmlCreationdate(Date xmlCreationdate) {
+	public void setXmlCreationdate(String xmlCreationdate) {
 		this.xmlCreationdate = xmlCreationdate;
 	}
 }
