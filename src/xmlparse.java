@@ -219,7 +219,7 @@ public class xmlparse {
 		System.out.println("update string: " + update);
 		
 		executeUpdate(hisCon, update);
-		return;
+//		return;
 	}
 	
 
@@ -362,7 +362,7 @@ public class xmlparse {
 
 			System.out.println("DONE!!!!!!!!");
 			
-			return;
+
 		}
 	}
 
