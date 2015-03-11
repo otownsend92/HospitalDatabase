@@ -2,7 +2,7 @@ import java.util.Date;
 
 public class Patient {
 	private String patientid;
-	private String patientrole;
+	private String guardianNo;
 	private String givenname;
 	private String familyname;
 	private String suffix;
@@ -11,11 +11,11 @@ public class Patient {
 	private String providerId;
 	private String xmlCreationdate;
 
-	public Patient(String ID, String patientrole, String firstName, String givenname,
+	public Patient(String patientId2, String guardianNo, String firstName, String givenname,
 			String familyname, String suffix, String gender, String birthtime,
 			String providerid, String xmlCreationDate) {
-		this.setPatientid(ID);
-		this.setPatientrole(patientrole);
+		this.setPatientid(patientId2);
+		this.setPatientrole(guardianNo);
 		this.setGivenname(givenname);
 		this.setFamilyname(familyname);
 		this.setSuffix(suffix);
@@ -26,11 +26,11 @@ public class Patient {
 	}
 
 	public String getPatientrole() {
-		return patientrole;
+		return guardianNo;
 	}
 
-	public void setPatientrole(String patientrole) {
-		this.patientrole = patientrole;
+	public void setPatientrole(String guardianNo) {
+		this.guardianNo = guardianNo;
 	}
 
 	public String getPatientid() {
