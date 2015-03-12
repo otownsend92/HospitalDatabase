@@ -13,9 +13,11 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -426,6 +428,15 @@ public class MySQLQueries {
                             " WHERE " + Table + ".PatientID = " + PatientID + ";";            
             System.out.println("query is " + query);
             System.out.println (st.executeUpdate(query) + " row(s) affected.");
+            
+            
+            DateFormat dateFormat = new SimpleDateFormat("M/d/yyyy");
+			Date date = new Date();
+			String xmlCreationDate1 = dateFormat.format(date);
+			System.out.println("Report Date: " + xmlCreationDate1);
+			
+			String updateXML = "UPDATE Patient SET xmlHealthCreationDateTime  = \""+xmlCreationDate1+"\" WHERE PatientID = \"" + PatientID+"\";";
+			st.executeUpdate(updateXML);
             return 0;          
     
     }
@@ -440,6 +451,21 @@ public class MySQLQueries {
                                 " WHERE " + Table + ".PlanId = " + PlanId;
                 System.out.println("query is " + query);
                 System.out.println (st.executeUpdate(query) + " row(s) affected.");
+          		DateFormat dateFormat = new SimpleDateFormat("M/d/yyyy");
+				Date date = new Date();
+				String xmlCreationDate1 = dateFormat.format(date);
+				System.out.println("Report Date: " + xmlCreationDate1);
+				String getPatientID = "SELECT PatientID FROM Has_Plan WHERE PlanID = \"" + PlanId +"\"";
+				rs = st.executeQuery(getPatientID);
+				String PatientID= null;
+				while(rs.next()) {
+					PatientID = rs.getString(1);
+				}				
+				if (PatientID != null)
+				{
+				String updateXML = "UPDATE Patient SET xmlHealthCreationDateTime  = \""+xmlCreationDate1+"\" WHERE PatientID = \"" +PatientID+"\";";
+				st.executeUpdate(updateXML);
+				}
                 return 0;          
         
         }

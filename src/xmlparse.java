@@ -58,18 +58,13 @@ public class xmlparse {
 		System.out.println("hisCon=" + hisCon);
 		System.out.println("hmeCon=" + hmeCon);
 
-		st = hmeCon.createStatement();
-		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName + " ORDER BY patientId;");
-		parseHmeQuery(rs);
-
-		
-		System.out.println("\n\n\n\nmessages2\n");
-
-		hmeTableName = "messages2";
-		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName
-				+ " ORDER BY patientId;");
-		parseHmeQueryForAdd(rs);
-
+//		st = hmeCon.createStatement();
+//		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName + " ORDER BY patientId;");
+//		parseHmeQuery(rs);
+//		
+//		hmeTableName = "messages2";
+//		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName + " ORDER BY patientId;");
+//		parseHmeQueryForAdd(rs);
 		System.out.println("DONE copying... ");
 		
 		CLI.enterCLIMode();
@@ -305,7 +300,13 @@ public class xmlparse {
 	
 	
 	public static void updateXMLTime(String msgID) throws SQLException {
-
+		
+//		DateFormat dateFormat = new SimpleDateFormat("M/d/yyyy");
+//		Date date = new Date();
+//		System.out.println(dateFormat.format(date));
+//		xmlCreationDate1 = dateFormat.format(date);
+//		System.out.println("Report Date: " + xmlCreationDate1);
+		
 		String updateXML = "UPDATE " + hmeTableName + " SET Last_Accessed = \""
 				+ xmlCreationDate1 + "\" WHERE MsgId = \"" + msgID + "\";";
 		System.out.println("updateXML query: " + updateXML);
