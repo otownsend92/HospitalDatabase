@@ -20,8 +20,8 @@ public class xmlparse {
 	private final static String serverName = "localhost";
 	private final static int portNumHme = 3306;
 	private final static int portNumHospital = 3306;
-	 private final static String hmeDBName = "healthmessagesexchange2";
-//	private final static String hmeDBName = "healthmessagesexchange3";
+//	 private final static String hmeDBName = "healthmessagesexchange2";
+	private final static String hmeDBName = "healthmessagesexchange3";
 	private final static String hospitalDBName = "hospitalrecords";
 	private static String hmeTableName = "messages";
 	public static Connection hmeCon = null;
@@ -55,11 +55,13 @@ public class xmlparse {
 
 		// clear HIS database !!
 //		resetHISDB();
+		
+		System.out.println("\n\n\n\nmessages2\n");
 
-//		hmeTableName = "messages2";
-//		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName
-//				+ " ORDER BY patientId;");
-//		parseHmeQueryForUpdate(rs);
+		hmeTableName = "messages2";
+		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName
+				+ " ORDER BY patientId;");
+		parseHmeQueryForAdd(rs);
 
 		System.out.println("DONE");
 	}
@@ -227,14 +229,14 @@ public class xmlparse {
 		}
 	}
 
-	public static void parseHmeQueryForUpdate(ResultSet rs) throws SQLException, ParseException {
+	public static void parseHmeQueryForAdd(ResultSet rs) throws SQLException, ParseException {
 		
 		while (rs.next()) {
 			// Retrieve by column name
 			String MsgId = rs.getString("MsgId");
 			String Last_Accessed = rs.getString("Last_Accessed");
 			String patientId = rs.getString("patientId");
-			String FamilyID = rs.getString("Id");
+			String AllergyId = rs.getString("Id");
 			String Substance = rs.getString("Substance");
 			String Reaction = rs.getString("Reaction");
 			String Status = rs.getString("Status");
@@ -249,11 +251,12 @@ public class xmlparse {
 			String Activity = rs.getString("Activity");
 			String ScheduledDate = rs.getString("ScheduledDate");
 			
-			updateAllergyInDB(Substance, Reaction, Status, patientId);
-			updateLabReportInDB(LabTestResultId, PatientVisitId,
+			
+			addAllergyToDB(AllergyId, Substance, Reaction, Status, patientId);
+			addLabReportToDB(LabTestResultId, PatientVisitId,
 					LabTestPerformedDate, LabTestType, TestResultValue,
 					ReferenceRangeHigh, ReferenceRangeLow, patientId);
-			updatePlanInDB(Activity, ScheduledDate, patientId);
+			addPlanToDB(PlanId, Activity, ScheduledDate, patientId);
 		}
 		
 	}
@@ -262,14 +265,8 @@ public class xmlparse {
 		
 	}
 	
-	public static void updateLabReportInDB(String LabTestResultId, String PatientVisitId,
-			String LabTestPerformedDate, String LabTestType, String TestResultValue,
-			String ReferenceRangeHigh, String ReferenceRangeLow, String patientId) {
-		
-	}
-	public static void updatePlanInDB(Activity, ScheduledDate, patientId) {
-		
-	}
+
+	
 	
 	public static void updateXMLTime(String msgID) throws SQLException {
 
@@ -283,21 +280,24 @@ public class xmlparse {
 	public static void addPatientToDB(String patientId, String GuardianNo, String GivenName, String FamilyName, 
 			String Suffix, String Gender, String BirthTime, String ProviderID, String MsgId)
 			throws SQLException {
-
+		
 		// Connection conn = getConnection(portNumHospital, hospitalDBName);
-		String update = "INSERT INTO `Patient` (" + "`PatientID`,"
-				+ "`GuardianNo`," + "`GivenName`," + "`FamilyName`,"
-				+ "`Suffix`," + "`Gender`," + "`BirthTime`," + "`ProviderID`,"
-				+ "`xmlHealthCreationDateTime`) VALUES ( \"" + patientId
-				+ "\",\"" + GuardianNo + "\",\"" + GivenName
-				+ "\",\"" + FamilyName + "\",\"" + Suffix
-				+ "\",\"" + Gender + "\",\"" + BirthTime
-				+ "\",\"" + ProviderID + "\",\"" + xmlCreationDate1
-				+ "\");";
-		System.out.println("update string: " + update);
-
-		executeUpdate(hisCon, update);
-		updateXMLTime(MsgId);
+		
+		if(patientId != null) {
+			String update = "INSERT INTO `Patient` (" + "`PatientID`,"
+					+ "`GuardianNo`," + "`GivenName`," + "`FamilyName`,"
+					+ "`Suffix`," + "`Gender`," + "`BirthTime`," + "`ProviderID`,"
+					+ "`xmlHealthCreationDateTime`) VALUES ( \"" + patientId
+					+ "\",\"" + GuardianNo + "\",\"" + GivenName
+					+ "\",\"" + FamilyName + "\",\"" + Suffix
+					+ "\",\"" + Gender + "\",\"" + BirthTime
+					+ "\",\"" + ProviderID + "\",\"" + xmlCreationDate1
+					+ "\");";
+			System.out.println("update string: " + update);
+	
+			executeUpdate(hisCon, update);
+			updateXMLTime(MsgId);
+		}
 		return;
 	}
 
@@ -305,16 +305,18 @@ public class xmlparse {
 			String LastName, String Relationship, String Phone, String Address, String City,
 			String State, String Zip, String PatientID) throws SQLException {
 
-		String update = "INSERT INTO `Has_Guardian` (" + "`GuardianNo`,"
-				+ "`FirstName`," + "`LastName`," + "`Relationship`," + "`Phone`," + "`Address`,"
-				+ "`City`," + "`State`," + "`Zip`,"
-				+ "`PatientID`) VALUES ( \"" + GuardianNo + "\",\"" + FirstName
-				+ "\",\"" + LastName + "\",\"" + Relationship + "\",\"" + Phone + "\",\"" + Address
-				+ "\",\"" + City + "\",\"" + State + "\",\"" + Zip + "\",\""
-				+ PatientID + "\");";
-		System.out.println("update string: " + update);
-
-		executeUpdate(hisCon, update);
+		if(GuardianNo != null && PatientID != null) {
+			String update = "INSERT INTO `Has_Guardian` (" + "`GuardianNo`,"
+					+ "`FirstName`," + "`LastName`," + "`Relationship`," + "`Phone`," + "`Address`,"
+					+ "`City`," + "`State`," + "`Zip`,"
+					+ "`PatientID`) VALUES ( \"" + GuardianNo + "\",\"" + FirstName
+					+ "\",\"" + LastName + "\",\"" + Relationship + "\",\"" + Phone + "\",\"" + Address
+					+ "\",\"" + City + "\",\"" + State + "\",\"" + Zip + "\",\""
+					+ PatientID + "\");";
+			System.out.println("update string: " + update);
+	
+			executeUpdate(hisCon, update);
+		}
 		return;
 
 	}
@@ -323,15 +325,17 @@ public class xmlparse {
 			String AuthorFirstName, String AuthorLastName,
 			String ParticipatingRole, String PatientID) throws SQLException {
 
-		String update = "INSERT INTO `Has_Author` (" + "`AuthorID`,"
-				+ "`AuthorTitle`," + "`AuthorFirstName`," + "`AuthorLastName`,"
-				+ "`ParticipatingRole`," + "`PatientID`) VALUES ( \""
-				+ AuthorId + "\",\"" + AuthorTitle + "\",\"" + AuthorFirstName
-				+ "\",\"" + AuthorLastName + "\",\"" + ParticipatingRole
-				+ "\",\"" + PatientID + "\");";
-		System.out.println("update string: " + update);
-
-		executeUpdate(hisCon, update);
+		if(AuthorId != null && PatientID != null) {
+			String update = "INSERT INTO `Has_Author` (" + "`AuthorID`,"
+					+ "`AuthorTitle`," + "`AuthorFirstName`," + "`AuthorLastName`,"
+					+ "`ParticipatingRole`," + "`PatientID`) VALUES ( \""
+					+ AuthorId + "\",\"" + AuthorTitle + "\",\"" + AuthorFirstName
+					+ "\",\"" + AuthorLastName + "\",\"" + ParticipatingRole
+					+ "\",\"" + PatientID + "\");";
+			System.out.println("update string: " + update);
+	
+			executeUpdate(hisCon, update);
+		}
 		return;
 	}
 
@@ -339,62 +343,68 @@ public class xmlparse {
 			String Purpose, String PolicyHolder, String PolicyType, String PatientID)
 			throws SQLException {
 
-		String update = "INSERT INTO `Has_Insurance` (" 
-				+ "`PayerID`,"
-				+ "`Name`," 
-				+ "`Purpose`," 
-				+ "`PolicyHolder`,"
-				+ "`PolicyType`,"
-				+ "`PatientID`) VALUES ( \"" 
-				+ payerId 
-				+ "\",\"" 
-				+ Name
-				+ "\",\"" 
-				+ Purpose 
-				+ "\",\""
-				+ PolicyHolder 
-				+ "\",\""
-				+ PolicyType 
-				+ "\",\""
-				+ PatientID 
-				+ "\");";
-		System.out.println("update string: " + update);
-
-		executeUpdate(hisCon, update);
+		if(payerId != null && PatientID != null) {
+			String update = "INSERT INTO `Has_Insurance` (" 
+					+ "`PayerID`,"
+					+ "`Name`," 
+					+ "`Purpose`," 
+					+ "`PolicyHolder`,"
+					+ "`PolicyType`,"
+					+ "`PatientID`) VALUES ( \"" 
+					+ payerId 
+					+ "\",\"" 
+					+ Name
+					+ "\",\"" 
+					+ Purpose 
+					+ "\",\""
+					+ PolicyHolder 
+					+ "\",\""
+					+ PolicyType 
+					+ "\",\""
+					+ PatientID 
+					+ "\");";
+			System.out.println("update string: " + update);
+	
+			executeUpdate(hisCon, update);
+		}
 		return;
 	}
 
 	public static void addHistoryToDB(String RelativeId, String Relation,
 			String Age, String Diagnosis, String PatientID) throws SQLException {
 
-		String update = "INSERT INTO `Has_History` (" + "`RelativeID`,"
-				+ "`Relation`," + "`Age`," + "`Diagnosis`,"
-				+ "`PatientID`) VALUES ( \"" + RelativeId + "\",\""
-				+ Relation + "\",\"" + Age + "\",\"" + Diagnosis + "\",\""
-				+ PatientID + "\");";
-		System.out.println("update string: " + update);
-
-		executeUpdate(hisCon, update);
+		if(RelativeId != null && PatientID != null) {
+			String update = "INSERT INTO `Has_History` (" + "`RelativeID`,"
+					+ "`Relation`," + "`Age`," + "`Diagnosis`,"
+					+ "`PatientID`) VALUES ( \"" + RelativeId + "\",\""
+					+ Relation + "\",\"" + Age + "\",\"" + Diagnosis + "\",\""
+					+ PatientID + "\");";
+			System.out.println("update string: " + update);
+	
+			executeUpdate(hisCon, update);
+		}
 		return;
 	}
 
 	public static void addAllergyToDB(String AllergyId, String Substance, String Reaction,
 			String Status, String PatientID) throws SQLException {
 
-		String update = "INSERT INTO `Has_Allergies` (" 
-				+ "`AllergyID`,"
-				+ "`Substance`,"
-				+ "`Reaction`," 
-				+ "`Status`," 
-				+ "`PatientID`) VALUES ( \""
-				+ AllergyId + "\",\""
-				+ Substance + "\",\"" 
-				+ Reaction + "\",\"" 
-				+ Status + "\",\""
-				+ PatientID + "\");";
-		System.out.println("update string: " + update);
-
-		executeUpdate(hisCon, update);
+		if(AllergyId != null && PatientID != null) {
+			String update = "INSERT INTO `Has_Allergies` (" 
+					+ "`AllergyID`,"
+					+ "`Substance`,"
+					+ "`Reaction`," 
+					+ "`Status`," 
+					+ "`PatientID`) VALUES ( \""
+					+ AllergyId + "\",\""
+					+ Substance + "\",\"" 
+					+ Reaction + "\",\"" 
+					+ Status + "\",\""
+					+ PatientID + "\");";
+			System.out.println("update string: " + update);
+	
+			executeUpdate(hisCon, update);
+		}
 		return;
 	}
 
@@ -404,30 +414,34 @@ public class xmlparse {
 			String ReferenceRangeHigh, String ReferenceRangeLow,
 			String PatientID) throws SQLException {
 
-		String update = "INSERT INTO `Has_LabReports` (" + "`LabTestResultID`,"
-				+ "`PatientVisitID`," + "`LabTestPerformedDate`,"
-				+ "`LabTestType`," + "`TestResultValue`,"
-				+ "`ReferenceRangeHigh`," + "`ReferenceRangeLow`,"
-				+ "`PatientID`) VALUES ( \"" + LabTestResultID + "\",\""
-				+ PatientVisitID + "\",\"" + LabTestPerformedDate + "\",\""
-				+ LabTestType + "\",\"" + TestResultValue + "\",\""
-				+ ReferenceRangeHigh + "\",\"" + ReferenceRangeLow + "\",\""
-				+ PatientID + "\");";
-		System.out.println("update string: " + update);
-
-		executeUpdate(hisCon, update);
+		if(LabTestResultID != null && PatientVisitID != null && PatientID != null) {
+			String update = "INSERT INTO `Has_LabReports` (" + "`LabTestResultID`,"
+					+ "`PatientVisitID`," + "`LabTestPerformedDate`,"
+					+ "`LabTestType`," + "`TestResultValue`,"
+					+ "`ReferenceRangeHigh`," + "`ReferenceRangeLow`,"
+					+ "`PatientID`) VALUES ( \"" + LabTestResultID + "\",\""
+					+ PatientVisitID + "\",\"" + LabTestPerformedDate + "\",\""
+					+ LabTestType + "\",\"" + TestResultValue + "\",\""
+					+ ReferenceRangeHigh + "\",\"" + ReferenceRangeLow + "\",\""
+					+ PatientID + "\");";
+			System.out.println("update string: " + update);
+	
+			executeUpdate(hisCon, update);
+		}
 		return;
 	}
 
 	public static void addPlanToDB(String PlanId, String Activity, String ScheduledDate, 
 			String patientId) throws SQLException {
 
-		String update = "INSERT INTO `Has_Plan` (" + "`PlanId`," + "`Activity`,"
-				+ "`ScheduledDate`," + "`PatientID`) VALUES ( \"" + PlanId
-				+ "\",\"" + Activity + "\",\"" + ScheduledDate + "\",\"" + patientId + "\");";
-		System.out.println("update string: " + update);
-
-		executeUpdate(hisCon, update);
+		if(PlanId != null && patientId != null) {
+			String update = "INSERT INTO `Has_Plan` (" + "`PlanId`," + "`Activity`,"
+					+ "`ScheduledDate`," + "`PatientID`) VALUES ( \"" + PlanId
+					+ "\",\"" + Activity + "\",\"" + ScheduledDate + "\",\"" + patientId + "\");";
+			System.out.println("update string: " + update);
+	
+			executeUpdate(hisCon, update);
+		}
 		return;
 	}
 
