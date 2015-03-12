@@ -249,12 +249,25 @@ public class xmlparse {
 			String Activity = rs.getString("Activity");
 			String ScheduledDate = rs.getString("ScheduledDate");
 			
-//			addAllergyToDB(Substance, Reaction, Status, patientId);
-//			addLabReportToDB(LabTestResultId, PatientVisitId,
-//					LabTestPerformedDate, LabTestType, TestResultValue,
-//					ReferenceRangeHigh, ReferenceRangeLow, patientId);
-//			addPlanToDB(Activity, ScheduledDate, patientId);
+			updateAllergyInDB(Substance, Reaction, Status, patientId);
+			updateLabReportInDB(LabTestResultId, PatientVisitId,
+					LabTestPerformedDate, LabTestType, TestResultValue,
+					ReferenceRangeHigh, ReferenceRangeLow, patientId);
+			updatePlanInDB(Activity, ScheduledDate, patientId);
 		}
+		
+	}
+	
+	public static void updateAllergyInDB(String Substance, String Reaction, String Status, String patientId) {
+		
+	}
+	
+	public static void updateLabReportInDB(String LabTestResultId, String PatientVisitId,
+			String LabTestPerformedDate, String LabTestType, String TestResultValue,
+			String ReferenceRangeHigh, String ReferenceRangeLow, String patientId) {
+		
+	}
+	public static void updatePlanInDB(Activity, ScheduledDate, patientId) {
 		
 	}
 	
