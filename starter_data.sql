@@ -1,11 +1,13 @@
-CREATE DATABASE `healthmessagesexchange` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE `starter` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `starter`;
+
 CREATE TABLE `messagequeue` (
   `control_id` int(11) DEFAULT NULL,
   `xmlmessage` varchar(20000) DEFAULT NULL,
   `last_accessed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `healthmessagesexchange`.`messagequeue`
+INSERT INTO `starter`.`messagequeue`
 (`control_id`,
 `xmlmessage`,
 `last_accessed`)
