@@ -56,16 +56,16 @@ public class xmlparse {
 		// conn.close();
 
 		// clear HIS database !!
-//		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Guardian`;");
-//		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Author`;");
-//		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Insurance`;");
-//		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_History`;");
-//		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Allergies`;");
-//		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_LabReports`;");
-//		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Plan`;");
-//		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Patient`;");
+		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Guardian`;");
+		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Author`;");
+		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Insurance`;");
+		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_History`;");
+		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Allergies`;");
+		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_LabReports`;");
+		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Has_Plan`;");
+		executeUpdate(hisCon, "DROP TABLE IF EXISTS `Patient`;");
 
-		createTables();
+//		createTables();
 
 		hmeTableName = "messages2";
 		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName
