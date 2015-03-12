@@ -24,7 +24,7 @@ public class xmlparse {
 	private final static int portNumHme = 3306;
 	private final static int portNumHospital = 3306;
 //	 private final static String hmeDBName = "healthmessagesexchange2";
-	private final static String hmeDBName = "healthmessagesexchange3";
+	private final static String hmeDBName = "healthmessagesexchange4";
 	private final static String hospitalDBName = "hospitalrecords";
 	private static String hmeTableName = "messages";
 	public static Connection hmeCon = null;
@@ -58,13 +58,13 @@ public class xmlparse {
 		System.out.println("hisCon=" + hisCon);
 		System.out.println("hmeCon=" + hmeCon);
 
-//		st = hmeCon.createStatement();
-//		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName + " ORDER BY patientId;");
-//		parseHmeQuery(rs);
+		st = hmeCon.createStatement();
+		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName + " ORDER BY patientId;");
+		parseHmeQuery(rs);
 //		
-//		hmeTableName = "messages2";
-//		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName + " ORDER BY patientId;");
-//		parseHmeQueryForAdd(rs);
+		hmeTableName = "messages2";
+		rs = st.executeQuery("SELECT * FROM " + hmeDBName + "." + hmeTableName + " ORDER BY patientId;");
+		parseHmeQueryForAdd(rs);
 		System.out.println("DONE copying... ");
 		
 		CLI.enterCLIMode();
